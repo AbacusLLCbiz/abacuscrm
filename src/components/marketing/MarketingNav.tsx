@@ -44,7 +44,7 @@ export function MarketingNav() {
           {/* CTAs */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              href="/admin"
+              href="/client-portal"
               className="text-sm font-semibold text-[#475569] hover:text-[#1e40af] transition-colors px-3 py-2"
             >
               Client Login
@@ -80,7 +80,7 @@ export function MarketingNav() {
               </a>
             ))}
             <div className="pt-2 flex flex-col gap-2">
-              <Link href="/admin" className="text-sm font-semibold text-[#475569] py-2">Client Login</Link>
+              <Link href="/client-portal" className="text-sm font-semibold text-[#475569] py-2">Client Login</Link>
               <a href="#book" className="rounded-full bg-[#1e40af] px-7 py-3 text-sm font-bold text-white text-center">Book a Meeting →</a>
             </div>
           </div>

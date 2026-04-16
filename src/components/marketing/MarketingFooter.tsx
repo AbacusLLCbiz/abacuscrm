@@ -49,7 +49,7 @@ export function MarketingFooter() {
             </ul>
             <div className="mt-6">
               <Link
-                href="/admin"
+                href="/client-portal"
                 className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
               >
                 Staff / Client Portal →
