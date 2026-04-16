@@ -2,9 +2,9 @@ import { Phone, Mail, Globe } from "lucide-react"
 
 export function ContactSection() {
   return (
-    <section id="contact" className="py-24 px-6 bg-[#f8fafc]">
+    <section id="contact" className="py-32 px-8 lg:px-16 bg-[#f8fafc]">
       <div className="mx-auto max-w-7xl">
-        <div className="max-w-2xl mb-16">
+        <div className="max-w-2xl mb-20">
           <p className="text-sm font-bold text-[#1e40af] uppercase tracking-widest mb-4">Get in touch</p>
           <h2 className="text-5xl sm:text-6xl font-black leading-[0.95] tracking-tight text-[#0f172a]">
             Let&apos;s{" "}
@@ -15,7 +15,7 @@ export function ContactSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
               icon: Phone,
@@ -48,9 +48,9 @@ export function ContactSection() {
             <a
               key={c.label}
               href={c.href}
-              className={`group rounded-2xl border-2 ${c.border} bg-white p-8 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl block`}
+              className={`group rounded-2xl border-2 ${c.border} bg-white p-10 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl block`}
             >
-              <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${c.color} mb-6`}>
+              <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${c.color} mb-8`}>
                 <c.icon className="h-6 w-6" />
               </div>
               <p className="text-sm font-bold text-[#64748b] uppercase tracking-wider mb-2">{c.label}</p>

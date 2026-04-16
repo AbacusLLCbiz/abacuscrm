@@ -2,7 +2,7 @@ import { Calendar, Clock, Video, MapPin } from "lucide-react"
 
 export function BookingCTA() {
   return (
-    <section id="book" className="py-24 px-6 bg-[#1e40af] relative overflow-hidden">
+    <section id="book" className="py-32 px-8 lg:px-16 bg-[#1e40af] relative overflow-hidden">
       {/* Background pattern */}
       <div
         aria-hidden
@@ -14,7 +14,7 @@ export function BookingCTA() {
       />
 
       <div className="mx-auto max-w-7xl relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left */}
           <div>
             <p className="text-blue-200 text-sm font-bold uppercase tracking-widest mb-4">Get started</p>
@@ -36,7 +36,7 @@ export function BookingCTA() {
           </div>
 
           {/* Right — meeting type cards */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-5">
             {[
               { icon: MapPin, label: "In Person", sub: "Our office" },
               { icon: Video, label: "Zoom", sub: "Video call" },
@@ -45,9 +45,9 @@ export function BookingCTA() {
             ].map((m) => (
               <div
                 key={m.label}
-                className="rounded-2xl bg-white/10 backdrop-blur border border-white/20 p-5 hover:bg-white/20 transition-colors cursor-pointer"
+                className="rounded-2xl bg-white/10 backdrop-blur border border-white/20 p-7 hover:bg-white/20 transition-colors cursor-pointer"
               >
-                <m.icon className="h-6 w-6 text-[#60a5fa] mb-3" />
+                <m.icon className="h-7 w-7 text-[#60a5fa] mb-4" />
                 <p className="text-white font-bold text-base">{m.label}</p>
                 <p className="text-blue-200 text-sm">{m.sub}</p>
               </div>
