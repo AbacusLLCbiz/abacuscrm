@@ -1,13 +1,12 @@
 import NextAuth from "next-auth"
 import { authConfig } from "@/lib/auth.config"
 
-// Use the edge-compatible config — no Prisma, no bcrypt
-const { auth } = NextAuth(authConfig)
-export { auth as middleware }
+// Edge-compatible middleware — no Prisma, no bcrypt.
+// Runs on staff routes to make the session available server-side.
+export const { auth: middleware } = NextAuth(authConfig)
 
 export const config = {
   matcher: [
-    // Protect all staff/admin routes
     "/dashboard/:path*",
     "/clients/:path*",
     "/scheduler/:path*",
