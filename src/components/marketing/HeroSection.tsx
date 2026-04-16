@@ -48,7 +48,7 @@ export function HeroSection() {
           <div className="mt-12 flex flex-wrap items-center gap-4">
             <a
               href="#book"
-              className="rounded-full bg-[#1e40af] px-8 py-4 text-base font-bold text-white hover:bg-[#1d4ed8] transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5"
+              className="rounded-full bg-[#1e40af] px-10 py-5 text-base font-bold text-white hover:bg-[#1d4ed8] transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5"
             >
               Book a free meeting
             </a>

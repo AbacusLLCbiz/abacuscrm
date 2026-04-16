@@ -44,16 +44,16 @@ export function AboutSection() {
             </p>
 
             <div className="flex flex-wrap gap-3">
-              <span className="rounded-full border-2 border-[#bfdbfe] bg-[#eff6ff] px-4 py-2 text-sm font-bold text-[#1e40af]">
+              <span className="rounded-full border-2 border-[#bfdbfe] bg-[#eff6ff] px-6 py-3 text-sm font-bold text-[#1e40af]">
                 Individual Tax
               </span>
-              <span className="rounded-full border-2 border-[#bbf7d0] bg-[#f0fdf4] px-4 py-2 text-sm font-bold text-[#16a34a]">
+              <span className="rounded-full border-2 border-[#bbf7d0] bg-[#f0fdf4] px-6 py-3 text-sm font-bold text-[#16a34a]">
                 Business Tax
               </span>
-              <span className="rounded-full border-2 border-[#fde68a] bg-[#fefce8] px-4 py-2 text-sm font-bold text-[#ca8a04]">
+              <span className="rounded-full border-2 border-[#fde68a] bg-[#fefce8] px-6 py-3 text-sm font-bold text-[#ca8a04]">
                 Consulting
               </span>
-              <span className="rounded-full border-2 border-[#e9d5ff] bg-[#fdf4ff] px-4 py-2 text-sm font-bold text-[#9333ea]">
+              <span className="rounded-full border-2 border-[#e9d5ff] bg-[#fdf4ff] px-6 py-3 text-sm font-bold text-[#9333ea]">
                 Se habla Español
               </span>
             </div>

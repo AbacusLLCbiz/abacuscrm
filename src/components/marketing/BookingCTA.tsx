@@ -28,7 +28,7 @@ export function BookingCTA() {
             </p>
             <a
               href="/book/consultation"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-[#1e40af] hover:bg-[#eff6ff] transition-all shadow-lg hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-10 py-5 text-base font-bold text-[#1e40af] hover:bg-[#eff6ff] transition-all shadow-lg hover:-translate-y-0.5"
             >
               <Calendar className="h-5 w-5" />
               Schedule now — it&apos;s free

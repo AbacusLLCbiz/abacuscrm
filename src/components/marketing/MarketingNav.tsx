@@ -51,7 +51,7 @@ export function MarketingNav() {
             </Link>
             <a
               href="#book"
-              className="rounded-full bg-[#1e40af] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#1d4ed8] transition-colors shadow-sm"
+              className="rounded-full bg-[#1e40af] px-7 py-3 text-sm font-bold text-white hover:bg-[#1d4ed8] transition-colors shadow-sm"
             >
               Book a Meeting →
             </a>
@@ -81,7 +81,7 @@ export function MarketingNav() {
             ))}
             <div className="pt-2 flex flex-col gap-2">
               <Link href="/admin" className="text-sm font-semibold text-[#475569] py-2">Client Login</Link>
-              <a href="#book" className="rounded-full bg-[#1e40af] px-5 py-2.5 text-sm font-bold text-white text-center">Book a Meeting →</a>
+              <a href="#book" className="rounded-full bg-[#1e40af] px-7 py-3 text-sm font-bold text-white text-center">Book a Meeting →</a>
             </div>
           </div>
         )}
