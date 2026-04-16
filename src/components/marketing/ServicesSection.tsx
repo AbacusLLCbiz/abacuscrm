@@ -41,10 +41,10 @@ const services = [
 
 export function ServicesSection() {
   return (
-    <section id="services" className="py-32 px-8 lg:px-16 bg-[#f8fafc]">
+    <section id="services" className="py-40 px-8 lg:px-20 bg-[#f8fafc]">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="max-w-2xl mb-20">
+        <div className="max-w-2xl mb-24">
           <p className="text-sm font-bold text-[#1e40af] uppercase tracking-widest mb-4">What we do</p>
           <h2 className="text-5xl sm:text-6xl font-black leading-[0.95] tracking-tight text-[#0f172a]">
             Everything your{" "}
@@ -57,13 +57,13 @@ export function ServicesSection() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {services.map((s) => (
             <div
               key={s.title}
-              className={`rounded-2xl border-2 ${s.accent} bg-white p-10 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl`}
+              className={`rounded-2xl border-2 ${s.accent} bg-white p-12 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl`}
             >
-              <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${s.color} mb-8`}>
+              <div className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl ${s.color} mb-10`}>
                 <s.icon className="h-6 w-6" />
               </div>
               <h3 className="text-2xl font-black text-[#0f172a] mb-3">{s.title}</h3>

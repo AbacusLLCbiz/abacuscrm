@@ -23,9 +23,9 @@ const values = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="py-32 px-8 lg:px-16 bg-white overflow-hidden">
+    <section id="about" className="py-40 px-8 lg:px-20 bg-white overflow-hidden">
       <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
           {/* Left — text */}
           <div>
             <p className="text-sm font-bold text-[#1e40af] uppercase tracking-widest mb-4">Who we are</p>
@@ -60,11 +60,11 @@ export function AboutSection() {
           </div>
 
           {/* Right — value cards */}
-          <div className="space-y-5">
+          <div className="space-y-6">
             {values.map((v) => (
               <div
                 key={v.title}
-                className="flex items-start gap-6 rounded-2xl border border-[#e2e8f0] p-8 hover:border-[#1e40af] hover:shadow-lg transition-all duration-200"
+                className="flex items-start gap-6 rounded-2xl border border-[#e2e8f0] p-10 hover:border-[#1e40af] hover:shadow-lg transition-all duration-200"
               >
                 <div className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${v.color}`}>
                   <v.icon className="h-6 w-6" />

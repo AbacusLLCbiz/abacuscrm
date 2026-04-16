@@ -1,6 +1,6 @@
 export function HeroSection() {
   return (
-    <section className="relative min-h-[700px] flex items-center overflow-hidden bg-white pt-24 pb-20">
+    <section className="relative min-h-[820px] flex items-center overflow-hidden bg-white pt-36 pb-32">
       {/* Background photo — covers right portion */}
       <div
         aria-hidden
@@ -24,7 +24,7 @@ export function HeroSection() {
       <div className="relative mx-auto max-w-7xl w-full px-8 lg:px-16">
         <div className="max-w-2xl">
           {/* Tag */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-[#eff6ff] px-4 py-1.5 mb-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-[#eff6ff] px-4 py-1.5 mb-12">
             <span className="h-2 w-2 rounded-full bg-[#1e40af] animate-pulse" />
             <span className="text-sm font-semibold text-[#1e40af]">Over 18 years of experience</span>
           </div>
@@ -39,13 +39,13 @@ export function HeroSection() {
             </span>
           </h1>
 
-          <p className="mt-8 text-lg text-[#475569] max-w-lg leading-relaxed font-medium">
+          <p className="mt-10 text-lg text-[#475569] max-w-lg leading-relaxed font-medium">
             Abacus Accounting, LLC — personalized tax preparation, accounting,
             and business consulting. Hassle-free. Transparent. In English and Spanish.
           </p>
 
           {/* CTAs */}
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-12 flex flex-wrap items-center gap-4">
             <a
               href="#book"
               className="rounded-full bg-[#1e40af] px-8 py-4 text-base font-bold text-white hover:bg-[#1d4ed8] transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5"
@@ -61,7 +61,7 @@ export function HeroSection() {
           </div>
 
           {/* Stats */}
-          <div className="mt-16 flex flex-wrap items-start gap-10 pt-8 border-t border-[#e2e8f0]">
+          <div className="mt-20 flex flex-wrap items-start gap-14 pt-10 border-t border-[#e2e8f0]">
             {[
               { value: "18+", label: "Years of experience" },
               { value: "100%", label: "Personalized service" },
