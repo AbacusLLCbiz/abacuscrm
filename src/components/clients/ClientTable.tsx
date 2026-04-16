@@ -177,8 +177,11 @@ export function ClientTable() {
                           <Mail className="h-3 w-3" /> {client.email}
                         </a>
                         {client.phone && (
-                          <a href={`tel:${client.phone}`} className="flex items-center gap-1 text-xs text-[#64748b] hover:text-[#1e40af]">
-                            <Phone className="h-3 w-3" /> {formatPhone(client.phone)}
+                          <a
+                            href={`tel:${client.phone}`}
+                            className="inline-flex items-center gap-1.5 rounded-md bg-[#eff6ff] border border-[#bfdbfe] px-2.5 py-1 text-xs font-medium text-[#1e40af] hover:bg-[#dbeafe] transition-colors"
+                          >
+                            <Phone className="h-3 w-3" /> Call
                           </a>
                         )}
                       </div>
