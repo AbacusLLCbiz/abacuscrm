@@ -1,5 +1,5 @@
 import { Heart, ShieldCheck, Zap } from "lucide-react"
-import { marketingContent, type Locale } from "@/lib/marketing-content"
+import { marketingContent, type Locale } from "../content"
 
 const valueMeta = [
   { icon: Heart, color: "text-rose-500 bg-rose-50" },

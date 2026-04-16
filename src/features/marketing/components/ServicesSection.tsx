@@ -1,5 +1,5 @@
 import { FileText, BarChart3, Lightbulb, Briefcase } from "lucide-react"
-import { marketingContent, type Locale } from "@/lib/marketing-content"
+import { marketingContent, type Locale } from "../content"
 
 const cardMeta = [
   {

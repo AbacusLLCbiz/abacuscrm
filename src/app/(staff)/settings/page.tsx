@@ -1,4 +1,4 @@
-import { TopBar } from "@/components/layout/TopBar"
+import { TopBar } from "@/shared/components/layout/TopBar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

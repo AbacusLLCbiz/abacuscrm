@@ -1,24 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { z } from "zod"
-
-const createClientSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  entityType: z.enum(["INDIVIDUAL", "SOLE_PROPRIETOR", "LLC", "S_CORP", "C_CORP", "PARTNERSHIP", "NON_PROFIT", "OTHER"]).optional(),
-  status: z.enum(["ACTIVE", "INACTIVE", "PROSPECT"]).default("ACTIVE"),
-  fiscalYearEnd: z.string().optional(),
-  street: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zip: z.string().optional(),
-  notes: z.string().optional(),
-  tags: z.array(z.string()).default([]),
-})
+import { createClientSchema } from "@/features/clients/schemas"
 
 export async function POST(req: NextRequest) {
   const session = await auth()
@@ -33,6 +16,7 @@ export async function POST(req: NextRequest) {
   const client = await prisma.client.create({
     data: {
       ...data,
+      services: [],
       assignedToId: session.user.id,
     },
   })

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic"
 
-import { TopBar } from "@/components/layout/TopBar"
-import { StatsCard } from "@/components/layout/StatsCard"
+import { TopBar } from "@/shared/components/layout/TopBar"
+import { StatsCard } from "@/shared/components/layout/StatsCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Users, Calendar, FolderOpen, Zap, Clock, MapPin, Video, Phone } from "lucide-react"

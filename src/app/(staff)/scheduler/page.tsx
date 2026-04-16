@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { TopBar } from "@/components/layout/TopBar"
+import { TopBar } from "@/shared/components/layout/TopBar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -178,8 +178,7 @@ export default function SchedulerPage() {
   useEffect(() => {
     fetchAppointments()
     fetch("/api/event-types")
-      .then((r) => r.json())
-      .then(setEventTypes)
+      .then(async (r) => { if (r.ok) setEventTypes(await r.json()) })
       .finally(() => setLoadingETs(false))
   }, [fetchAppointments])
 

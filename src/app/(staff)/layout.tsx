@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/layout/Sidebar"
+import { Sidebar } from "@/shared/components/layout/Sidebar"
 
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
   return (

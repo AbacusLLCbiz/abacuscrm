@@ -1,10 +1,22 @@
-import { TopBar } from "@/components/layout/TopBar"
-import { ClientTable } from "@/components/clients/ClientTable"
+export const dynamic = "force-dynamic"
+
+import { TopBar } from "@/shared/components/layout/TopBar"
+import { ClientTable } from "@/features/clients/components/ClientTable"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import Link from "next/link"
+import { prisma } from "@/lib/prisma"
 
-export default function ClientsPage() {
+async function getClients() {
+  return prisma.client.findMany({
+    include: { assignedTo: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+export default async function ClientsPage() {
+  const clients = await getClients()
+
   return (
     <>
       <TopBar
@@ -20,7 +32,7 @@ export default function ClientsPage() {
         }
       />
       <main className="flex-1 overflow-hidden p-8">
-        <ClientTable />
+        <ClientTable initialClients={clients} />
       </main>
     </>
   )

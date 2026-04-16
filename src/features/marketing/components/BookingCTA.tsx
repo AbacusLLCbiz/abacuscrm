@@ -1,5 +1,5 @@
 import { Calendar, Clock, Video, MapPin } from "lucide-react"
-import { marketingContent, type Locale } from "@/lib/marketing-content"
+import { marketingContent, type Locale } from "../content"
 
 const meetingIcons = [MapPin, Video, Video, Clock]
 

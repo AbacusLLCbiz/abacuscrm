@@ -1,4 +1,4 @@
-import { marketingContent, type Locale } from "@/lib/marketing-content"
+import { marketingContent, type Locale } from "../content"
 
 interface Props {
   locale?: Locale

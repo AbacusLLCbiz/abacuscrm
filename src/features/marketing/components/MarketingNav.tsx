@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X, Building2 } from "lucide-react"
-import { marketingContent, type Locale } from "@/lib/marketing-content"
+import { marketingContent, type Locale } from "../content"
 
 interface Props {
   locale?: Locale
