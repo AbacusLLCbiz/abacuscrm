@@ -3,7 +3,6 @@ import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
-import { authConfig } from "@/lib/auth.config"
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -12,7 +11,10 @@ const loginSchema = z.object({
 })
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  ...authConfig,
+  session: { strategy: "jwt" },
+  pages: {
+    signIn: "/admin",
+  },
   providers: [
     Credentials({
       name: "credentials",
@@ -33,7 +35,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const passwordValid = await bcrypt.compare(password, user.passwordHash)
         if (!passwordValid) return null
 
-        // Staff users require OTP verification only when Twilio (SMS) is configured
         const smsEnabled = !!(
           process.env.TWILIO_ACCOUNT_SID &&
           process.env.TWILIO_AUTH_TOKEN &&
