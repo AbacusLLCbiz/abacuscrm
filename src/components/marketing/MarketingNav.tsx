@@ -3,22 +3,22 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X, Building2 } from "lucide-react"
+import { marketingContent, type Locale } from "@/lib/marketing-content"
 
-const links = [
-  { label: "Services", href: "#services" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
-]
+interface Props {
+  locale?: Locale
+}
 
-export function MarketingNav() {
+export function MarketingNav({ locale = "en" }: Props) {
   const [open, setOpen] = useState(false)
+  const c = marketingContent[locale].nav
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#e2e8f0]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href={locale === "es" ? "/es" : "/"} className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1e40af]">
               <Building2 className="h-5 w-5 text-white" />
             </div>
@@ -30,7 +30,7 @@ export function MarketingNav() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8">
-            {links.map((l) => (
+            {c.links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
@@ -44,16 +44,16 @@ export function MarketingNav() {
           {/* CTAs */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              href="/client-portal"
+              href={c.clientLogin.href}
               className="text-sm font-semibold text-[#475569] hover:text-[#1e40af] transition-colors px-3 py-2"
             >
-              Client Login
+              {c.clientLogin.label}
             </Link>
             <a
               href="#book"
               className="rounded-full bg-[#1e40af] px-7 py-3 text-sm font-bold text-white hover:bg-[#1d4ed8] transition-colors shadow-sm"
             >
-              Book a Meeting →
+              {c.bookCta}
             </a>
           </div>
 
@@ -69,7 +69,7 @@ export function MarketingNav() {
         {/* Mobile menu */}
         {open && (
           <div className="md:hidden border-t border-[#e2e8f0] py-4 space-y-3">
-            {links.map((l) => (
+            {c.links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
@@ -80,8 +80,12 @@ export function MarketingNav() {
               </a>
             ))}
             <div className="pt-2 flex flex-col gap-2">
-              <Link href="/client-portal" className="text-sm font-semibold text-[#475569] py-2">Client Login</Link>
-              <a href="#book" className="rounded-full bg-[#1e40af] px-7 py-3 text-sm font-bold text-white text-center">Book a Meeting →</a>
+              <Link href={c.clientLogin.href} className="text-sm font-semibold text-[#475569] py-2">
+                {c.clientLogin.label}
+              </Link>
+              <a href="#book" className="rounded-full bg-[#1e40af] px-7 py-3 text-sm font-bold text-white text-center">
+                {c.bookCta}
+              </a>
             </div>
           </div>
         )}

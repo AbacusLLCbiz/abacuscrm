@@ -1,4 +1,12 @@
-export function HeroSection() {
+import { marketingContent, type Locale } from "@/lib/marketing-content"
+
+interface Props {
+  locale?: Locale
+}
+
+export function HeroSection({ locale = "en" }: Props) {
+  const c = marketingContent[locale].hero
+
   return (
     <section className="relative min-h-[820px] flex items-center overflow-hidden bg-white pt-36 pb-32">
       {/* Background photo — covers right portion */}
@@ -26,22 +34,21 @@ export function HeroSection() {
           {/* Tag */}
           <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-[#eff6ff] px-4 py-1.5 mb-12">
             <span className="h-2 w-2 rounded-full bg-[#1e40af] animate-pulse" />
-            <span className="text-sm font-semibold text-[#1e40af]">Over 18 years of experience</span>
+            <span className="text-sm font-semibold text-[#1e40af]">{c.badge}</span>
           </div>
 
           {/* Headline */}
           <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tight text-[#0f172a]">
-            It&apos;s time to{" "}
+            {c.h1Line1}{" "}
             <br className="hidden sm:block" />
-            get your taxes{" "}
+            {c.h1Line2}{" "}
             <span className="italic" style={{ color: "#1e40af" }}>
-              done right.
+              {c.h1Italic}
             </span>
           </h1>
 
           <p className="mt-10 text-lg text-[#475569] max-w-lg leading-relaxed font-medium">
-            Abacus Accounting, LLC — personalized tax preparation, accounting,
-            and business consulting. Hassle-free. Transparent. In English and Spanish.
+            {c.subtext}
           </p>
 
           {/* CTAs */}
@@ -50,23 +57,19 @@ export function HeroSection() {
               href="#book"
               className="rounded-full bg-[#1e40af] px-10 py-5 text-base font-bold text-white hover:bg-[#1d4ed8] transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5"
             >
-              Book a free meeting
+              {c.cta1}
             </a>
             <a
               href="#services"
               className="flex items-center gap-2 text-base font-semibold text-[#475569] hover:text-[#1e40af] transition-colors"
             >
-              See our services <span aria-hidden>→</span>
+              {c.cta2}
             </a>
           </div>
 
           {/* Stats */}
           <div className="mt-20 flex flex-wrap items-start gap-14 pt-10 border-t border-[#e2e8f0]">
-            {[
-              { value: "18+", label: "Years of experience" },
-              { value: "100%", label: "Personalized service" },
-              { value: "2", label: "Languages spoken" },
-            ].map((s, i) => (
+            {c.stats.map((s, i) => (
               <div key={s.label} className="flex items-start gap-4">
                 {i > 0 && <div className="w-px h-12 bg-[#e2e8f0] self-center" />}
                 <div>
