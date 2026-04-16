@@ -2,9 +2,8 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-export async function GET() {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const GET = auth(async (req) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
@@ -20,4 +19,4 @@ export async function GET() {
   })
 
   return NextResponse.json(appointments)
-}
+})

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
@@ -18,33 +18,24 @@ const patchSchema = z.object({
   googleMeetLink: z.string().optional().nullable(),
 })
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const GET = auth(async (req, { params }: { params: Promise<{ id: string }> }) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { id } = await params
   const eventType = await prisma.eventType.findUnique({ where: { id } })
   if (!eventType) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
   return NextResponse.json(eventType)
-}
+})
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const PATCH = auth(async (req, { params }: { params: Promise<{ id: string }> }) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { id } = await params
   const body = await req.json()
   const parsed = patchSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  // If slug is changing, check uniqueness
   if (parsed.data.slug) {
     const existing = await prisma.eventType.findFirst({
       where: { slug: parsed.data.slug, id: { not: id } },
@@ -52,23 +43,14 @@ export async function PATCH(
     if (existing) return NextResponse.json({ error: "Slug already in use" }, { status: 400 })
   }
 
-  const eventType = await prisma.eventType.update({
-    where: { id },
-    data: parsed.data,
-  })
-
+  const eventType = await prisma.eventType.update({ where: { id }, data: parsed.data })
   return NextResponse.json(eventType)
-}
+})
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const DELETE = auth(async (req, { params }: { params: Promise<{ id: string }> }) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { id } = await params
   await prisma.eventType.delete({ where: { id } })
-
   return NextResponse.json({ success: true })
-}
+})

@@ -139,7 +139,7 @@ export default function EditEventTypePage({ params }: { params: Promise<{ id: st
                 <Label htmlFor="slug">URL Slug <span className="text-red-500">*</span></Label>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-[#94a3b8]">/book/</span>
-                  <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="tax-consultation" pattern="[a-z0-9-]+" required />
+                  <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="tax-consultation" pattern="[a-z0-9\-]+" required />
                 </div>
                 <p className="text-xs text-[#94a3b8]">Lowercase letters, numbers, and hyphens only.</p>
               </div>

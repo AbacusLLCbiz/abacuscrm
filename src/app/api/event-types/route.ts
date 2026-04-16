@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
@@ -17,9 +17,15 @@ const createEventTypeSchema = z.object({
   googleMeetLink: z.string().optional(),
 })
 
-export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const GET = auth(async (req) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const eventTypes = await prisma.eventType.findMany({ orderBy: { createdAt: "desc" } })
+  return NextResponse.json(eventTypes)
+})
+
+export const POST = auth(async (req) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const body = await req.json()
   const parsed = createEventTypeSchema.safeParse(body)
@@ -29,14 +35,5 @@ export async function POST(req: NextRequest) {
   if (existing) return NextResponse.json({ error: "Slug already in use" }, { status: 400 })
 
   const eventType = await prisma.eventType.create({ data: parsed.data })
-
   return NextResponse.json({ id: eventType.id }, { status: 201 })
-}
-
-export async function GET() {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
-  const eventTypes = await prisma.eventType.findMany({ orderBy: { createdAt: "desc" } })
-  return NextResponse.json(eventTypes)
-}
+})

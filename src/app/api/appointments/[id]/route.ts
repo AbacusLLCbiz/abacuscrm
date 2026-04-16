@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
@@ -7,12 +7,8 @@ const patchSchema = z.object({
   status: z.enum(["CONFIRMED", "CANCELLED", "COMPLETED", "NO_SHOW"]),
 })
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const PATCH = auth(async (req, { params }: { params: Promise<{ id: string }> }) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { id } = await params
   const body = await req.json()
@@ -30,4 +26,4 @@ export async function PATCH(
   })
 
   return NextResponse.json(appointment)
-}
+})

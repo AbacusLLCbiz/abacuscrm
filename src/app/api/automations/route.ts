@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
@@ -7,16 +7,9 @@ const createAutomationSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   trigger: z.enum([
-    "DOCUMENT_UPLOADED",
-    "DOCUMENT_REQUEST_DUE",
-    "APPOINTMENT_BOOKED",
-    "APPOINTMENT_CONFIRMED",
-    "APPOINTMENT_CANCELLED",
-    "APPOINTMENT_REMINDER_24H",
-    "APPOINTMENT_REMINDER_1H",
-    "CLIENT_CREATED",
-    "DOCUMENT_REVIEWED",
-    "CUSTOM_DATE",
+    "DOCUMENT_UPLOADED", "DOCUMENT_REQUEST_DUE", "APPOINTMENT_BOOKED",
+    "APPOINTMENT_CONFIRMED", "APPOINTMENT_CANCELLED", "APPOINTMENT_REMINDER_24H",
+    "APPOINTMENT_REMINDER_1H", "CLIENT_CREATED", "DOCUMENT_REVIEWED", "CUSTOM_DATE",
   ]),
   triggerDaysBefore: z.number().int().optional(),
   triggerDateField: z.string().optional(),
@@ -25,20 +18,15 @@ const createAutomationSchema = z.object({
   isActive: z.boolean().default(true),
 })
 
-export async function GET() {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const GET = auth(async (req) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const rules = await prisma.automationRule.findMany({
-    orderBy: { createdAt: "desc" },
-  })
-
+  const rules = await prisma.automationRule.findMany({ orderBy: { createdAt: "desc" } })
   return NextResponse.json(rules)
-}
+})
 
-export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const POST = auth(async (req) => {
+  if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const body = await req.json()
   const parsed = createAutomationSchema.safeParse(body)
@@ -50,4 +38,4 @@ export async function POST(req: NextRequest) {
   })
 
   return NextResponse.json({ id: rule.id }, { status: 201 })
-}
+})
