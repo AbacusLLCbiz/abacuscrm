@@ -14,4 +14,7 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3000
-CMD ["npm", "start"]
+
+RUN printf '#!/bin/sh\nset -e\necho "Node: $(node --version)"\necho "Running prisma db push..."\nnpx prisma db push --accept-data-loss\necho "Starting Next.js..."\nexec npm start\n' > /app/start.sh && chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
