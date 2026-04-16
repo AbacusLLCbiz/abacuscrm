@@ -78,7 +78,7 @@ export default function AutomationsPage() {
           </Button>
         }
       />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-8">
         {/* Intro card */}
         <Card className="mb-6 border-[#bfdbfe] bg-[#eff6ff]">
           <CardContent className="flex items-start gap-4 pt-5">

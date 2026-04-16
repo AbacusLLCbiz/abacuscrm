@@ -20,7 +20,7 @@ const colorMap = {
 export function StatsCard({ title, value, subtitle, icon: Icon, trend, color = "blue" }: StatsCardProps) {
   const colors = colorMap[color]
   return (
-    <div className="flex items-center gap-4 rounded-lg border border-[#e2e8f0] bg-white p-5 shadow-sm">
+    <div className="flex items-center gap-5 rounded-xl border border-[#e2e8f0] bg-white p-7 shadow-sm">
       <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl", colors.bg)}>
         <Icon className={cn("h-5 w-5", colors.icon)} />
       </div>

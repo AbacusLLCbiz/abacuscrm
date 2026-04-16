@@ -20,12 +20,12 @@ export default function SchedulerPage() {
           </Button>
         }
       />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Calendar placeholder */}
           <div className="lg:col-span-2">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-sm font-semibold">Calendar</CardTitle>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm">Week</Button>
@@ -45,7 +45,7 @@ export default function SchedulerPage() {
           {/* Event Types */}
           <div className="space-y-4">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-sm font-semibold">Event Types</CardTitle>
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="/scheduler/event-types"><Settings className="h-3.5 w-3.5" /></Link>

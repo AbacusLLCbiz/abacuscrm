@@ -81,7 +81,7 @@ function NavItem({
       <Link
         href={item.href}
         className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors group",
+          "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors group",
           depth === 0
             ? isActive
               ? "bg-white/15 text-white"
@@ -116,7 +116,7 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-60 shrink-0 flex-col overflow-hidden" style={{ background: "var(--sidebar-bg)" }}>
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-4 py-5 border-b border-white/10">
+      <div className="flex items-center gap-2.5 px-5 py-6 border-b border-white/10">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
           <Building2 className="h-4 w-4 text-white" />
         </div>
@@ -127,7 +127,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto sidebar-scroll px-3 py-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto sidebar-scroll px-3 py-5 space-y-1">
         {navItems.map((item) => (
           <NavItem key={item.href} item={item} />
         ))}

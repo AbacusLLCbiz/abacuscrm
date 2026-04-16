@@ -20,19 +20,19 @@ export default function DashboardPage() {
   return (
     <>
       <TopBar title="Dashboard" subtitle="Welcome back" />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {stats.map((s) => (
             <StatsCard key={s.title} {...s} />
           ))}
         </div>
 
         {/* Content Grid */}
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Upcoming Appointments */}
           <Card className="lg:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
               <CardTitle className="text-sm font-semibold">Upcoming Appointments</CardTitle>
               <Badge variant="cobalt">Today</Badge>
             </CardHeader>
@@ -60,7 +60,7 @@ export default function DashboardPage() {
 
           {/* Document Requests */}
           <Card className="lg:col-span-2">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
               <CardTitle className="text-sm font-semibold">Pending Document Requests</CardTitle>
               <Badge variant="warning">0 pending</Badge>
             </CardHeader>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
                 <a
                   key={action.href}
                   href={action.href}
-                  className="flex items-center gap-3 rounded-md border border-[#e2e8f0] px-3 py-2.5 text-sm font-medium text-[#374151] hover:border-[#1e40af] hover:text-[#1e40af] hover:bg-[#eff6ff] transition-colors"
+                  className="flex items-center gap-3 rounded-lg border border-[#e2e8f0] px-4 py-3.5 text-sm font-medium text-[#374151] hover:border-[#1e40af] hover:text-[#1e40af] hover:bg-[#eff6ff] transition-colors"
                 >
                   <action.icon className="h-4 w-4" />
                   {action.label}
