@@ -1,29 +1,81 @@
+export const dynamic = "force-dynamic"
+
 import { TopBar } from "@/components/layout/TopBar"
 import { StatsCard } from "@/components/layout/StatsCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Calendar, FolderOpen, Zap, Clock, CheckCircle2, AlertCircle } from "lucide-react"
+import { Users, Calendar, FolderOpen, Zap, Clock, MapPin, Video, Phone } from "lucide-react"
+import { prisma } from "@/lib/prisma"
+import Link from "next/link"
 
-// Placeholder data — will be replaced with real DB queries
-const stats = [
-  { title: "Total Clients", value: 0, subtitle: "Active clients", icon: Users, color: "blue" as const },
-  { title: "Appointments Today", value: 0, subtitle: "Scheduled", icon: Calendar, color: "green" as const },
-  { title: "Pending Documents", value: 0, subtitle: "Awaiting review", icon: FolderOpen, color: "amber" as const },
-  { title: "Active Automations", value: 0, subtitle: "Rules running", icon: Zap, color: "blue" as const },
-]
+type MeetingType = "IN_PERSON" | "ZOOM" | "GOOGLE_MEET" | "PHONE"
+type AppointmentStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "NO_SHOW"
 
-const recentActivity = [
-  { type: "appointment", label: "No recent activity yet", time: "", status: "neutral" },
-]
+const STATUS_VARIANT: Record<AppointmentStatus, "warning" | "success" | "secondary" | "cobalt" | "destructive"> = {
+  PENDING: "warning",
+  CONFIRMED: "success",
+  CANCELLED: "secondary",
+  COMPLETED: "cobalt",
+  NO_SHOW: "destructive",
+}
 
-export default function DashboardPage() {
+const MEETING_ICONS: Record<MeetingType, React.ElementType> = {
+  IN_PERSON: MapPin,
+  ZOOM: Video,
+  GOOGLE_MEET: Video,
+  PHONE: Phone,
+}
+
+async function getUpcomingAppointments() {
+  const now = new Date()
+  return prisma.appointment.findMany({
+    where: {
+      startAt: { gte: now },
+      status: { in: ["PENDING", "CONFIRMED"] },
+    },
+    include: {
+      client: true,
+      eventType: true,
+    },
+    orderBy: { startAt: "asc" },
+    take: 5,
+  })
+}
+
+async function getStats() {
+  const [totalClients, appointmentsToday, pendingDocs, activeAutomations] = await Promise.all([
+    prisma.client.count({ where: { status: "ACTIVE" } }),
+    prisma.appointment.count({
+      where: {
+        startAt: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999)),
+        },
+      },
+    }),
+    prisma.document.count({ where: { status: "PENDING" } }),
+    prisma.automationRule.count({ where: { isActive: true } }),
+  ])
+  return { totalClients, appointmentsToday, pendingDocs, activeAutomations }
+}
+
+export default async function DashboardPage() {
+  const [appointments, stats] = await Promise.all([getUpcomingAppointments(), getStats()])
+
+  const statCards = [
+    { title: "Total Clients", value: stats.totalClients, subtitle: "Active clients", icon: Users, color: "blue" as const },
+    { title: "Appointments Today", value: stats.appointmentsToday, subtitle: "Scheduled", icon: Calendar, color: "green" as const },
+    { title: "Pending Documents", value: stats.pendingDocs, subtitle: "Awaiting review", icon: FolderOpen, color: "amber" as const },
+    { title: "Active Automations", value: stats.activeAutomations, subtitle: "Rules running", icon: Zap, color: "blue" as const },
+  ]
+
   return (
     <>
       <TopBar title="Dashboard" subtitle="Welcome back" />
       <main className="flex-1 overflow-y-auto p-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {stats.map((s) => (
+          {statCards.map((s) => (
             <StatsCard key={s.title} {...s} />
           ))}
         </div>
@@ -34,14 +86,47 @@ export default function DashboardPage() {
           <Card className="lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between pb-4">
               <CardTitle className="text-sm font-semibold">Upcoming Appointments</CardTitle>
-              <Badge variant="cobalt">Today</Badge>
+              <Link href="/scheduler" className="text-xs text-[#1e40af] hover:underline">View all</Link>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Calendar className="h-10 w-10 text-[#bfdbfe] mb-3" />
-                <p className="text-sm font-medium text-[#64748b]">No appointments scheduled</p>
-                <p className="text-xs text-[#94a3b8] mt-1">Add clients and set up event types to get started</p>
-              </div>
+              {appointments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Calendar className="h-10 w-10 text-[#bfdbfe] mb-3" />
+                  <p className="text-sm font-medium text-[#64748b]">No upcoming appointments</p>
+                  <p className="text-xs text-[#94a3b8] mt-1">Add clients and set up event types to get started</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {appointments.map((appt) => {
+                    const MeetingIcon = MEETING_ICONS[appt.meetingType as MeetingType] ?? Calendar
+                    const startTime = new Date(appt.startAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                    const dateStr = new Date(appt.startAt).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+                    return (
+                      <div
+                        key={appt.id}
+                        className="flex items-center gap-4 rounded-xl border border-[#e2e8f0] bg-white p-4"
+                        style={{ borderLeftColor: appt.eventType.color, borderLeftWidth: 3 }}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-[#0f172a]">
+                            {appt.client.firstName} {appt.client.lastName}
+                          </p>
+                          <p className="text-xs text-[#64748b]">{appt.eventType.title}</p>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-[#64748b] shrink-0">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> {dateStr} · {startTime}
+                          </span>
+                          <MeetingIcon className="h-3.5 w-3.5" />
+                          <Badge variant={STATUS_VARIANT[appt.status as AppointmentStatus]}>
+                            {appt.status.charAt(0) + appt.status.slice(1).toLowerCase()}
+                          </Badge>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
 
