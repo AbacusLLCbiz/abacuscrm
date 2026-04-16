@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
+import { authConfig } from "@/lib/auth.config"
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -11,10 +12,7 @@ const loginSchema = z.object({
 })
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/admin",
-  },
+  ...authConfig,
   providers: [
     Credentials({
       name: "credentials",
