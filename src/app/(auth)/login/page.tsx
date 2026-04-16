@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Building2, Mail, Lock, Shield, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,15 +11,50 @@ import { Label } from "@/components/ui/label"
 type Step = "credentials" | "otp"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [step, setStep] = useState<Step>("credentials")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
 
   const handleCredentials = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // TODO: call /api/auth/send-otp then move to OTP step
-    await new Promise((r) => setTimeout(r, 1000))
+    setError("")
+
+    // Try to send OTP — if Twilio isn't configured the API returns smsEnabled: false
+    const res = await fetch("/api/auth/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+
+    const data = await res.json()
+
+    if (res.status === 401) {
+      setError("Invalid email or password.")
+      setLoading(false)
+      return
+    }
+
+    // SMS disabled — sign in directly with just email + password
+    if (!res.ok || data.smsDisabled) {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+      setLoading(false)
+      if (result?.error) {
+        setError("Invalid email or password.")
+      } else {
+        router.push("/dashboard")
+      }
+      return
+    }
+
+    // SMS enabled — proceed to OTP step
     setLoading(false)
     setStep("otp")
   }
@@ -25,9 +62,23 @@ export default function LoginPage() {
   const handleOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // TODO: call NextAuth signIn with credentials + OTP
-    await new Promise((r) => setTimeout(r, 1000))
+    setError("")
+
+    const otpCode = (e.currentTarget as HTMLFormElement).otp.value
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      otpCode,
+      redirect: false,
+    })
+
     setLoading(false)
+    if (result?.error) {
+      setError("Invalid or expired code. Try again.")
+    } else {
+      router.push("/dashboard")
+    }
   }
 
   return (
@@ -83,9 +134,15 @@ export default function LoginPage() {
             <p className="text-sm text-[#64748b] mt-1">
               {step === "credentials"
                 ? "Enter your email and password"
-                : `We sent a 6-digit code to your phone number on file`}
+                : "We sent a 6-digit code to your phone number on file"}
             </p>
           </div>
+
+          {error && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
 
           {step === "credentials" ? (
             <form onSubmit={handleCredentials} className="space-y-4">
@@ -108,7 +165,15 @@ export default function LoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
-                  <Input id="password" type="password" className="pl-9" placeholder="••••••••" required />
+                  <Input
+                    id="password"
+                    type="password"
+                    className="pl-9"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
@@ -120,13 +185,14 @@ export default function LoginPage() {
               <div className="rounded-lg border border-[#bfdbfe] bg-[#eff6ff] p-4 flex items-start gap-3">
                 <Shield className="h-4 w-4 text-[#1e40af] mt-0.5 shrink-0" />
                 <p className="text-xs text-[#1e40af]">
-                  Two-factor authentication is required for staff accounts. A 6-digit code was sent via SMS.
+                  Two-factor authentication is required. A 6-digit code was sent via SMS.
                 </p>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="otp">Verification code</Label>
                 <Input
                   id="otp"
+                  name="otp"
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]{6}"

@@ -24,6 +24,16 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
+    // If Twilio isn't configured, tell the client to skip OTP and sign in directly
+    const smsEnabled = !!(
+      process.env.TWILIO_ACCOUNT_SID &&
+      process.env.TWILIO_AUTH_TOKEN &&
+      process.env.TWILIO_PHONE_NUMBER
+    )
+    if (!smsEnabled) {
+      return Response.json({ smsDisabled: true })
+    }
+
     if (!user.phone) {
       return Response.json({ error: "No phone number on file for 2FA" }, { status: 400 })
     }

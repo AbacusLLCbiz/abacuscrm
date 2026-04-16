@@ -35,8 +35,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const passwordValid = await bcrypt.compare(password, user.passwordHash)
         if (!passwordValid) return null
 
-        // Staff users require OTP verification
-        if (user.role === "STAFF" || user.role === "ADMIN") {
+        // Staff users require OTP verification only when Twilio (SMS) is configured
+        const smsEnabled = !!(
+          process.env.TWILIO_ACCOUNT_SID &&
+          process.env.TWILIO_AUTH_TOKEN &&
+          process.env.TWILIO_PHONE_NUMBER
+        )
+        if (smsEnabled && (user.role === "STAFF" || user.role === "ADMIN")) {
           if (!otpCode) return null
 
           const otp = await prisma.otpCode.findFirst({
