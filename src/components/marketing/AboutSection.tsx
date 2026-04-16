@@ -23,7 +23,7 @@ const values = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="py-52 px-8 lg:px-20 bg-white overflow-hidden">
+    <section id="about" className="py-52 px-14 lg:px-32 bg-white overflow-hidden">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
           {/* Left — text */}

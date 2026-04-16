@@ -2,7 +2,7 @@ import { Calendar, Clock, Video, MapPin } from "lucide-react"
 
 export function BookingCTA() {
   return (
-    <section id="book" className="py-52 px-8 lg:px-20 bg-[#1e40af] relative overflow-hidden">
+    <section id="book" className="py-52 px-14 lg:px-32 bg-[#1e40af] relative overflow-hidden">
       {/* Background pattern */}
       <div
         aria-hidden

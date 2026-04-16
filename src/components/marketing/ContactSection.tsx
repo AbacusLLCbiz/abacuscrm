@@ -2,7 +2,7 @@ import { Phone, Mail, Globe } from "lucide-react"
 
 export function ContactSection() {
   return (
-    <section id="contact" className="py-52 px-8 lg:px-20 bg-[#f8fafc]">
+    <section id="contact" className="py-52 px-14 lg:px-32 bg-[#f8fafc]">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl mb-28">
           <p className="text-sm font-bold text-[#1e40af] uppercase tracking-widest mb-4">Get in touch</p>

@@ -21,7 +21,7 @@ export function HeroSection() {
         }}
       />
 
-      <div className="relative mx-auto max-w-7xl w-full px-8 lg:px-16">
+      <div className="relative mx-auto max-w-7xl w-full px-14 lg:px-32">
         <div className="max-w-2xl">
           {/* Tag */}
           <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-[#eff6ff] px-4 py-1.5 mb-12">

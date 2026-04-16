@@ -3,7 +3,7 @@ import { Building2 } from "lucide-react"
 
 export function MarketingFooter() {
   return (
-    <footer className="bg-[#0f172a] text-white py-28 px-8 lg:px-20">
+    <footer className="bg-[#0f172a] text-white py-28 px-14 lg:px-32">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-20 mb-20">
           {/* Brand */}
