@@ -41,10 +41,10 @@ const services = [
 
 export function ServicesSection() {
   return (
-    <section id="services" className="py-40 px-8 lg:px-20 bg-[#f8fafc]">
+    <section id="services" className="py-52 px-8 lg:px-20 bg-[#f8fafc]">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="max-w-2xl mb-24">
+        <div className="max-w-2xl mb-28">
           <p className="text-sm font-bold text-[#1e40af] uppercase tracking-widest mb-4">What we do</p>
           <h2 className="text-5xl sm:text-6xl font-black leading-[0.95] tracking-tight text-[#0f172a]">
             Everything your{" "}
@@ -57,18 +57,18 @@ export function ServicesSection() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {services.map((s) => (
             <div
               key={s.title}
-              className={`rounded-2xl border-2 ${s.accent} bg-white p-12 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl`}
+              className={`rounded-3xl border-2 ${s.accent} bg-white p-14 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl`}
             >
               <div className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl ${s.color} mb-10`}>
-                <s.icon className="h-6 w-6" />
+                <s.icon className="h-7 w-7" />
               </div>
-              <h3 className="text-2xl font-black text-[#0f172a] mb-3">{s.title}</h3>
-              <p className="text-[#475569] leading-relaxed mb-6">{s.description}</p>
-              <ul className="space-y-2">
+              <h3 className="text-2xl font-black text-[#0f172a] mb-4">{s.title}</h3>
+              <p className="text-[#475569] leading-relaxed mb-8">{s.description}</p>
+              <ul className="space-y-3">
                 {s.highlights.map((h) => (
                   <li key={h} className="flex items-center gap-2 text-sm font-medium text-[#374151]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#1e40af] shrink-0" />

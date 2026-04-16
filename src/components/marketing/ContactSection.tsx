@@ -2,9 +2,9 @@ import { Phone, Mail, Globe } from "lucide-react"
 
 export function ContactSection() {
   return (
-    <section id="contact" className="py-40 px-8 lg:px-20 bg-[#f8fafc]">
+    <section id="contact" className="py-52 px-8 lg:px-20 bg-[#f8fafc]">
       <div className="mx-auto max-w-7xl">
-        <div className="max-w-2xl mb-24">
+        <div className="max-w-2xl mb-28">
           <p className="text-sm font-bold text-[#1e40af] uppercase tracking-widest mb-4">Get in touch</p>
           <h2 className="text-5xl sm:text-6xl font-black leading-[0.95] tracking-tight text-[#0f172a]">
             Let&apos;s{" "}
@@ -48,7 +48,7 @@ export function ContactSection() {
             <a
               key={c.label}
               href={c.href}
-              className={`group rounded-2xl border-2 ${c.border} bg-white p-12 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl block`}
+              className={`group rounded-3xl border-2 ${c.border} bg-white p-14 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl block`}
             >
               <div className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl ${c.color} mb-10`}>
                 <c.icon className="h-6 w-6" />
