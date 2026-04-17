@@ -146,8 +146,12 @@ export default function AnalyticsPage() {
     setLoading(true)
     setError("")
     fetch(`/api/analytics/overview?days=${d}`)
-      .then((r) => { if (!r.ok) throw new Error("Failed to load analytics."); return r.json() })
-      .then((res) => setData(res))
+      .then((r) => {
+        if (r.status === 401) { window.location.href = "/admin"; return null }
+        if (!r.ok) throw new Error("Failed to load analytics.")
+        return r.json()
+      })
+      .then((res) => { if (res) setData(res) })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])

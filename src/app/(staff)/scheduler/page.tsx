@@ -205,6 +205,7 @@ export default function SchedulerPage() {
     setApiError(false)
     try {
       const res = await fetch("/api/appointments")
+      if (res.status === 401) { window.location.href = "/admin"; return }
       if (res.ok) {
         setAppointments(await res.json())
       } else {
