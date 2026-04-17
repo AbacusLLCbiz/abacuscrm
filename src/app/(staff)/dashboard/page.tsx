@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Users, Calendar, FolderOpen, Zap, Clock, MapPin, Video, Phone } from "lucide-react"
 import { prisma } from "@/lib/prisma"
+import { getFirmTimezone } from "@/lib/firm-timezone"
+import { fmtTime, fmtDate } from "@/lib/format-time"
 import Link from "next/link"
 
 type MeetingType = "IN_PERSON" | "ZOOM" | "GOOGLE_MEET" | "PHONE"
@@ -60,7 +62,7 @@ async function getStats() {
 }
 
 export default async function DashboardPage() {
-  const [appointments, stats] = await Promise.all([getUpcomingAppointments(), getStats()])
+  const [appointments, stats, tz] = await Promise.all([getUpcomingAppointments(), getStats(), getFirmTimezone()])
 
   const statCards = [
     { title: "Total Clients", value: stats.totalClients, subtitle: "Active clients", icon: Users, color: "blue" as const },
@@ -99,8 +101,8 @@ export default async function DashboardPage() {
                 <div className="space-y-3">
                   {appointments.map((appt) => {
                     const MeetingIcon = MEETING_ICONS[appt.meetingType as MeetingType] ?? Calendar
-                    const startTime = new Date(appt.startAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-                    const dateStr = new Date(appt.startAt).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+                    const startTime = fmtTime(appt.startAt, tz)
+                    const dateStr = fmtDate(appt.startAt, tz, { weekday: "short", month: "short", day: "numeric", year: undefined })
                     return (
                       <div
                         key={appt.id}

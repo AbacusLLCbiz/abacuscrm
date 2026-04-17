@@ -4,6 +4,8 @@ export const dynamic = "force-dynamic"
 
 import { useEffect, useState } from "react"
 import { CalendarDays, MapPin, Video, Phone, AlertCircle } from "lucide-react"
+import { useTimezone } from "@/app/providers"
+import { fmtDateTime } from "@/lib/format-time"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -72,22 +74,9 @@ function meetingLabel(type: Appointment["meetingType"]): string {
   }
 }
 
-function formatDateTime(iso: string): string {
-  const d = new Date(iso)
-  return d.toLocaleString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  })
-}
-
 // ─── Appointment Row ──────────────────────────────────────────────────────────
 
-function AppointmentRow({ appt }: { appt: Appointment }) {
+function AppointmentRow({ appt, tz }: { appt: Appointment; tz: string }) {
   return (
     <li className="grid grid-cols-[auto_1fr_auto_auto] gap-x-4 items-center py-3 border-b border-[#f1f5f9] last:border-0">
       {/* Color bar */}
@@ -98,7 +87,7 @@ function AppointmentRow({ appt }: { appt: Appointment }) {
       {/* Event type + date */}
       <div className="min-w-0">
         <p className="font-medium text-[#0f172a] truncate">{appt.eventType.title}</p>
-        <p className="text-sm text-[#64748b]">{formatDateTime(appt.startAt)}</p>
+        <p className="text-sm text-[#64748b]">{fmtDateTime(appt.startAt, tz)}</p>
       </div>
       {/* Meeting type */}
       <div className="hidden sm:flex items-center gap-1.5 text-sm text-[#64748b] whitespace-nowrap">
@@ -116,6 +105,7 @@ function AppointmentRow({ appt }: { appt: Appointment }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function PortalAppointmentsPage() {
+  const tz = useTimezone()
   const [client, setClient] = useState<ClientData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -187,7 +177,7 @@ export default function PortalAppointmentsPage() {
           ) : (
             <ul>
               {upcoming.map((appt) => (
-                <AppointmentRow key={appt.id} appt={appt} />
+                <AppointmentRow key={appt.id} appt={appt} tz={tz} />
               ))}
             </ul>
           )}
@@ -208,7 +198,7 @@ export default function PortalAppointmentsPage() {
           ) : (
             <ul>
               {past.map((appt) => (
-                <AppointmentRow key={appt.id} appt={appt} />
+                <AppointmentRow key={appt.id} appt={appt} tz={tz} />
               ))}
             </ul>
           )}

@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useTimezone } from "@/app/providers"
+import { fmtTime, fmtDateKey } from "@/lib/format-time"
 import { TopBar } from "@/shared/components/layout/TopBar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -63,30 +65,30 @@ const STATUS_VARIANT: Record<AppointmentStatus, "warning" | "success" | "seconda
   NO_SHOW: "destructive",
 }
 
-function groupByDate(appointments: Appointment[]) {
+function groupByDate(appointments: Appointment[], tz: string) {
   const groups: Record<string, Appointment[]> = {}
   for (const appt of appointments) {
-    const dateKey = new Date(appt.startAt).toLocaleDateString("en-US", {
-      weekday: "long", month: "long", day: "numeric", year: "numeric",
-    })
+    const dateKey = fmtDateKey(appt.startAt, tz)
     if (!groups[dateKey]) groups[dateKey] = []
     groups[dateKey].push(appt)
   }
   return Object.entries(groups)
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+function formatTime(iso: string, tz: string) {
+  return fmtTime(iso, tz)
 }
 
 // ─── Appointment Card ─────────────────────────────────────────────────────────
 
 function AppointmentCard({
   appt,
+  tz,
   onStatusChange,
   onCheckIn,
 }: {
   appt: Appointment
+  tz: string
   onStatusChange: (id: string, status: AppointmentStatus) => Promise<void>
   onCheckIn: (id: string) => Promise<void>
 }) {
@@ -137,7 +139,7 @@ function AppointmentCard({
         <div className="flex items-center gap-4 mt-3 text-xs text-[#64748b]">
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {formatTime(appt.startAt)} – {formatTime(appt.endAt)}
+            {formatTime(appt.startAt, tz)} – {formatTime(appt.endAt, tz)}
           </span>
           <span className="flex items-center gap-1">
             <MeetingIcon className="h-3 w-3" />
@@ -191,16 +193,25 @@ function AppointmentCard({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function SchedulerPage() {
+  const tz = useTimezone()
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [eventTypes, setEventTypes] = useState<EventType[]>([])
   const [loadingAppts, setLoadingAppts] = useState(true)
   const [loadingETs, setLoadingETs] = useState(true)
+  const [apiError, setApiError] = useState(false)
 
   const fetchAppointments = useCallback(async () => {
     setLoadingAppts(true)
+    setApiError(false)
     try {
       const res = await fetch("/api/appointments")
-      if (res.ok) setAppointments(await res.json())
+      if (res.ok) {
+        setAppointments(await res.json())
+      } else {
+        setApiError(true)
+      }
+    } catch {
+      setApiError(true)
     } finally {
       setLoadingAppts(false)
     }
@@ -227,7 +238,7 @@ export default function SchedulerPage() {
     await fetchAppointments()
   }
 
-  const grouped = groupByDate(appointments)
+  const grouped = groupByDate(appointments, tz)
 
   return (
     <>
@@ -258,6 +269,19 @@ export default function SchedulerPage() {
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="h-6 w-6 animate-spin text-[#94a3b8]" />
               </div>
+            ) : apiError ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                  <Calendar className="h-12 w-12 text-[#bfdbfe] mb-4" />
+                  <p className="text-sm font-semibold text-[#64748b]">Could not load appointments</p>
+                  <p className="text-xs text-[#94a3b8] mt-1 mb-4">
+                    The scheduler data may still be syncing. Please refresh the page.
+                  </p>
+                  <Button variant="outline" size="sm" onClick={fetchAppointments}>
+                    Retry
+                  </Button>
+                </CardContent>
+              </Card>
             ) : grouped.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -281,7 +305,7 @@ export default function SchedulerPage() {
                   <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wide mb-3">{date}</p>
                   <div className="space-y-3">
                     {appts.map((appt) => (
-                      <AppointmentCard key={appt.id} appt={appt} onStatusChange={handleStatusChange} onCheckIn={handleCheckIn} />
+                      <AppointmentCard key={appt.id} appt={appt} tz={tz} onStatusChange={handleStatusChange} onCheckIn={handleCheckIn} />
                     ))}
                   </div>
                 </div>

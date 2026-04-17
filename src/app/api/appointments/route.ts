@@ -8,15 +8,20 @@ export const GET = auth(async (req) => {
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
 
-  const appointments = await prisma.appointment.findMany({
-    where: { startAt: { gte: yesterday } },
-    include: {
-      client: true,
-      eventType: true,
-      staffUser: { select: { name: true } },
-    },
-    orderBy: { startAt: "asc" },
-  })
+  try {
+    const appointments = await prisma.appointment.findMany({
+      where: { startAt: { gte: yesterday } },
+      include: {
+        client: true,
+        eventType: true,
+        staffUser: { select: { name: true } },
+      },
+      orderBy: { startAt: "asc" },
+    })
 
-  return NextResponse.json(appointments)
+    return NextResponse.json(appointments)
+  } catch (err) {
+    console.error("[appointments GET]", err)
+    return NextResponse.json({ error: "Failed to load appointments" }, { status: 500 })
+  }
 })

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
+import { useTimezone } from "@/app/providers"
+import { fmtDate, fmtTime } from "@/lib/format-time"
 import { TopBar } from "@/shared/components/layout/TopBar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -77,17 +79,18 @@ const ENTITY_LABELS: Record<string, string> = {
   NON_PROFIT: "Non-Profit", OTHER: "Other",
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-}
-
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-}
-
 export default function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
+  const tz = useTimezone()
+
+  function formatDate(iso: string) {
+    return fmtDate(iso, tz)
+  }
+
+  function formatTime(iso: string) {
+    return fmtTime(iso, tz)
+  }
   const [client, setClient] = useState<Client | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)

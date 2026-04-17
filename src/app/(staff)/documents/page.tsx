@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { FolderOpen, Upload, FileText, Plus } from "lucide-react"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
+import { getFirmTimezone } from "@/lib/firm-timezone"
+import { fmtDate } from "@/lib/format-time"
 
 async function getFolders() {
   return prisma.documentFolder.findMany({
@@ -33,7 +35,7 @@ const STATUS_VARIANT: Record<string, "warning" | "success" | "secondary"> = {
 }
 
 export default async function DocumentsPage() {
-  const [folders, documents] = await Promise.all([getFolders(), getRecentDocuments()])
+  const [folders, documents, tz] = await Promise.all([getFolders(), getRecentDocuments(), getFirmTimezone()])
 
   return (
     <>
@@ -181,7 +183,7 @@ export default async function DocumentsPage() {
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-[#64748b] text-xs">
-                          {new Date(doc.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          {fmtDate(doc.createdAt, tz)}
                         </td>
                       </tr>
                     ))}

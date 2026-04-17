@@ -451,3 +451,11 @@ model CalendarToken {
 
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model FirmSettings {
+  id        String   @id @default("default")
+  timezone  String   @default("America/New_York")
+  firmName  String   @default("Abacus Accounting")
+  fromEmail String   @default("noreply@abacusaccounting.com")
+  updatedAt DateTime @updatedAt
+}
