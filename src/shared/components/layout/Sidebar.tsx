@@ -10,6 +10,7 @@ import {
   FolderOpen,
   Zap,
   Phone,
+  BarChart2,
   Settings,
   ChevronDown,
   Building2,
@@ -55,6 +56,11 @@ const navItems = [
     label: "Automations",
     href: "/automations",
     icon: Zap,
+  },
+  {
+    label: "Analytics",
+    href: "/analytics",
+    icon: BarChart2,
   },
   {
     label: "Settings",
