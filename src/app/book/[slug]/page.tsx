@@ -124,17 +124,16 @@ export default function BookingPage({ params }: { params: Promise<{ slug: string
   const [phone, setPhone] = useState("")
   const [notes, setNotes] = useState("")
 
-  // Fetch event type and availability
+  // Fetch event type and availability in one call
   useEffect(() => {
-    Promise.all([
-      fetch(`/api/book/${slug}`).then((r) => (r.ok ? r.json() : null)),
-      fetch(`/api/availability/public?slug=${slug}`).then((r) => (r.ok ? r.json() : [])),
-    ]).then(([et, avail]) => {
-      if (!et) { setNotFound(true); setLoadingET(false); return }
-      setEventType(et)
-      setAvailability(avail && avail.length > 0 ? avail : DEFAULT_AVAILABILITY)
-      setLoadingET(false)
-    })
+    fetch(`/api/book/${slug}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data?.eventType) { setNotFound(true); setLoadingET(false); return }
+        setEventType(data.eventType)
+        setAvailability(data.availability?.length > 0 ? data.availability : DEFAULT_AVAILABILITY)
+        setLoadingET(false)
+      })
   }, [slug])
 
   // Compute available dates from availability records
