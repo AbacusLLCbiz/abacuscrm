@@ -1,108 +1,46 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
-// Proxy to PostHog's HogQL query API — keeps POSTHOG_PERSONAL_API_KEY server-side only
 export const GET = auth(async (req) => {
   if (!req.auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const projectId = process.env.POSTHOG_PROJECT_ID
-  const apiKey = process.env.POSTHOG_PERSONAL_API_KEY
-  const host = (process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com").replace(/\/$/, "")
-
-  if (!projectId || !apiKey) {
-    return NextResponse.json({ configured: false })
-  }
-
   const url = new URL(req.url)
-  const days = Math.min(Number(url.searchParams.get("days") || "30"), 90)
+  const days = Math.min(Math.max(Number(url.searchParams.get("days") || "30"), 1), 90)
 
-  const queryEndpoint = `${host}/api/projects/${projectId}/query/`
-  const headers = {
-    Authorization: `Bearer ${apiKey}`,
-    "Content-Type": "application/json",
-  }
-
-  // Run three queries in parallel
-  const [trendRes, topPagesRes, sessionsRes] = await Promise.allSettled([
-    fetch(queryEndpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        query: {
-          kind: "HogQLQuery",
-          query: `
-            SELECT toDate(timestamp) AS date, count() AS pageviews
-            FROM events
-            WHERE event = '$pageview'
-              AND timestamp >= now() - INTERVAL ${days} DAY
-            GROUP BY date
-            ORDER BY date ASC
-          `.trim(),
-        },
-      }),
-    }),
-    fetch(queryEndpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        query: {
-          kind: "HogQLQuery",
-          query: `
-            SELECT properties.$current_url AS url, count() AS views
-            FROM events
-            WHERE event = '$pageview'
-              AND timestamp >= now() - INTERVAL ${days} DAY
-              AND properties.$current_url IS NOT NULL
-            GROUP BY url
-            ORDER BY views DESC
-            LIMIT 10
-          `.trim(),
-        },
-      }),
-    }),
-    fetch(queryEndpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        query: {
-          kind: "HogQLQuery",
-          query: `
-            SELECT
-              count() AS total_pageviews,
-              count(DISTINCT properties.$session_id) AS sessions
-            FROM events
-            WHERE event = '$pageview'
-              AND timestamp >= now() - INTERVAL ${days} DAY
-          `.trim(),
-        },
-      }),
-    }),
+  // Use $queryRawUnsafe — days is validated as an integer above (no injection risk)
+  const [trend, totals, topPages] = await Promise.all([
+    prisma.$queryRawUnsafe<{ date: string; pageviews: number }[]>(`
+      SELECT TO_CHAR(DATE("createdAt"), 'YYYY-MM-DD') as date,
+             COUNT(*)::int as pageviews
+      FROM "PageView"
+      WHERE "createdAt" >= NOW() - INTERVAL '${days} days'
+      GROUP BY DATE("createdAt")
+      ORDER BY date ASC
+    `),
+    prisma.$queryRawUnsafe<{ pageviews: number; sessions: number }[]>(`
+      SELECT COUNT(*)::int as pageviews,
+             COUNT(DISTINCT "sessionId")::int as sessions
+      FROM "PageView"
+      WHERE "createdAt" >= NOW() - INTERVAL '${days} days'
+    `),
+    prisma.$queryRawUnsafe<{ path: string; views: number }[]>(`
+      SELECT path, COUNT(*)::int as views
+      FROM "PageView"
+      WHERE "createdAt" >= NOW() - INTERVAL '${days} days'
+      GROUP BY path
+      ORDER BY views DESC
+      LIMIT 10
+    `),
   ])
 
-  const safeJson = async (res: PromiseSettledResult<Response>) => {
-    if (res.status === "rejected") return null
-    if (!res.value.ok) return null
-    try { return await res.value.json() } catch { return null }
-  }
-
-  const [trend, topPages, totals] = await Promise.all([
-    safeJson(trendRes),
-    safeJson(topPagesRes),
-    safeJson(sessionsRes),
-  ])
-
-  // trend.results: [[date, count], ...]
-  const trendRows: [string, number][] = trend?.results ?? []
-  // totals.results: [[total_pageviews, sessions]]
-  const totalsRow: [number, number] = totals?.results?.[0] ?? [0, 0]
-  // topPages.results: [[url, count], ...]
-  const topPagesRows: [string, number][] = topPages?.results ?? []
+  const totalsRow = totals[0] ?? { pageviews: 0, sessions: 0 }
 
   return NextResponse.json({
     configured: true,
     days,
-    trend: trendRows.map(([date, pageviews]) => ({ date, pageviews })),
-    totals: { pageviews: totalsRow[0] ?? 0, sessions: totalsRow[1] ?? 0 },
-    topPages: topPagesRows.map(([url, views]) => ({ url, views })),
+    trend: trend.map((r) => ({ date: r.date, pageviews: r.pageviews })),
+    totals: { pageviews: totalsRow.pageviews, sessions: totalsRow.sessions },
+    topPages: topPages.map((r) => ({ path: r.path, views: r.views })),
   })
 })

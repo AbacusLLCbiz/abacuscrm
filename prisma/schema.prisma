@@ -399,6 +399,19 @@ model PhoneCall {
   staffUser       User?         @relation("StaffCalls", fields: [staffUserId], references: [id])
 }
 
+// ─── Analytics ───────────────────────────────────────────────────────────────
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  referrer  String?
+  sessionId String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+}
+
 // ─── Calendar OAuth ───────────────────────────────────────────────────────────
 
 model CalendarToken {

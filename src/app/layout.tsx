@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { Suspense } from "react"
 import Providers from "./providers"
+import { PageTracker } from "./page-tracker"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -25,7 +27,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="h-full"><Providers>{children}</Providers></body>
+      <body className="h-full">
+        <Providers>
+          <Suspense fallback={null}><PageTracker /></Suspense>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
