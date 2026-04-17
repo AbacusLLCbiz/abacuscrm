@@ -16,6 +16,7 @@ const TRIGGERS = [
   { value: "APPOINTMENT_BOOKED", label: "Appointment Booked" },
   { value: "APPOINTMENT_CONFIRMED", label: "Appointment Confirmed" },
   { value: "APPOINTMENT_CANCELLED", label: "Appointment Cancelled" },
+  { value: "APPOINTMENT_CHECKED_IN", label: "Client Checked In" },
   { value: "APPOINTMENT_REMINDER_24H", label: "24h Before Appointment" },
   { value: "APPOINTMENT_REMINDER_1H", label: "1h Before Appointment" },
   { value: "DOCUMENT_UPLOADED", label: "Document Uploaded" },
@@ -29,6 +30,7 @@ const ACTIONS = [
   { value: "SEND_SMS", label: "Send SMS" },
   { value: "REQUEST_DOCUMENTS", label: "Request Documents" },
   { value: "CREATE_REMINDER", label: "Create Reminder" },
+  { value: "REQUEST_REVIEW", label: "Request Google Review" },
 ]
 
 const DATE_FIELDS = [
@@ -60,6 +62,14 @@ export default function NewAutomationPage() {
   const [reminderSubject, setReminderSubject] = useState("")
   const [reminderBody, setReminderBody] = useState("")
 
+  // REQUEST_REVIEW config
+  const [reviewSubjectEn, setReviewSubjectEn] = useState("How was your visit?")
+  const [reviewBodyEn, setReviewBodyEn] = useState("Hi {{firstName}}, thank you for visiting us! Please take a moment to rate your experience.")
+  const [reviewSubjectEs, setReviewSubjectEs] = useState("¿Cómo fue su visita?")
+  const [reviewBodyEs, setReviewBodyEs] = useState("Hola {{firstName}}, ¡gracias por visitarnos! Por favor, tómese un momento para calificar su experiencia.")
+  const [reviewMinRating, setReviewMinRating] = useState(4)
+  const [reviewGoogleUrl, setReviewGoogleUrl] = useState("")
+
   const buildActionConfig = () => {
     switch (action) {
       case "SEND_EMAIL":
@@ -70,6 +80,15 @@ export default function NewAutomationPage() {
         return { title: docTitle, description: docDescription || undefined }
       case "CREATE_REMINDER":
         return { channel: reminderChannel, subject: reminderSubject || undefined, body: reminderBody }
+      case "REQUEST_REVIEW":
+        return {
+          subject: reviewSubjectEn,
+          body: reviewBodyEn,
+          subject_es: reviewSubjectEs || undefined,
+          body_es: reviewBodyEs || undefined,
+          minRating: reviewMinRating,
+          googleUrl: reviewGoogleUrl || undefined,
+        }
       default:
         return {}
     }
@@ -283,6 +302,77 @@ export default function NewAutomationPage() {
                       value={docDescription}
                       onChange={(e) => setDocDescription(e.target.value)}
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* REQUEST_REVIEW config */}
+              {action === "REQUEST_REVIEW" && (
+                <div className="space-y-5 rounded-lg border border-[#e2e8f0] p-4 bg-[#f8fafc]">
+                  <p className="text-xs text-[#64748b] font-medium">Sends a bilingual review request email. High ratings are redirected to Google Reviews.</p>
+
+                  {/* English */}
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-[#0f172a] uppercase tracking-wide">English</p>
+                    <div className="space-y-2">
+                      <Label htmlFor="reviewSubjectEn">Subject (EN) <span className="text-red-500">*</span></Label>
+                      <Input id="reviewSubjectEn" value={reviewSubjectEn} onChange={(e) => setReviewSubjectEn(e.target.value)} required={action === "REQUEST_REVIEW"} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="reviewBodyEn">Body (EN) <span className="text-red-500">*</span></Label>
+                      <textarea
+                        id="reviewBodyEn"
+                        className="w-full min-h-[80px] rounded-lg border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#1e40af] resize-y"
+                        value={reviewBodyEn}
+                        onChange={(e) => setReviewBodyEn(e.target.value)}
+                        required={action === "REQUEST_REVIEW"}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Spanish */}
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-[#0f172a] uppercase tracking-wide">Spanish (optional)</p>
+                    <div className="space-y-2">
+                      <Label htmlFor="reviewSubjectEs">Subject (ES)</Label>
+                      <Input id="reviewSubjectEs" value={reviewSubjectEs} onChange={(e) => setReviewSubjectEs(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="reviewBodyEs">Body (ES)</Label>
+                      <textarea
+                        id="reviewBodyEs"
+                        className="w-full min-h-[80px] rounded-lg border border-[#e2e8f0] bg-white px-4 py-3 text-sm text-[#0f172a] placeholder:text-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#1e40af] resize-y"
+                        value={reviewBodyEs}
+                        onChange={(e) => setReviewBodyEs(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Gate settings */}
+                  <div className="space-y-3 border-t border-[#e2e8f0] pt-4">
+                    <p className="text-xs font-semibold text-[#0f172a] uppercase tracking-wide">Review Gate</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="reviewMinRating">Minimum rating for Google redirect</Label>
+                        <Select value={String(reviewMinRating)} onValueChange={(v) => setReviewMinRating(Number(v))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {[3, 4, 5].map((n) => (
+                              <SelectItem key={n} value={String(n)}>{n} stars</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="reviewGoogleUrl">Google Review URL</Label>
+                        <Input
+                          id="reviewGoogleUrl"
+                          value={reviewGoogleUrl}
+                          onChange={(e) => setReviewGoogleUrl(e.target.value)}
+                          placeholder="https://g.page/r/..."
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

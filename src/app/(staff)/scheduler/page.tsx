@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
   Plus, Calendar, Clock, Video, Phone, MapPin, Settings,
-  CheckCircle2, XCircle, Copy, ExternalLink, Loader2, Users
+  CheckCircle2, XCircle, Copy, ExternalLink, Loader2, Users, LogIn
 } from "lucide-react"
 import Link from "next/link"
 
@@ -23,6 +23,7 @@ interface Appointment {
   status: AppointmentStatus
   meetingType: MeetingType
   notes?: string
+  checkedInAt?: string | null
   client: { firstName: string; lastName: string; email: string; phone?: string }
   eventType: { title: string; color: string; durationMinutes: number }
   staffUser: { name: string | null }
@@ -83,11 +84,14 @@ function formatTime(iso: string) {
 function AppointmentCard({
   appt,
   onStatusChange,
+  onCheckIn,
 }: {
   appt: Appointment
   onStatusChange: (id: string, status: AppointmentStatus) => Promise<void>
+  onCheckIn: (id: string) => Promise<void>
 }) {
   const [loading, setLoading] = useState(false)
+  const [checkingIn, setCheckingIn] = useState(false)
   const MeetingIcon = MEETING_ICONS[appt.meetingType]
 
   const handleStatus = async (status: AppointmentStatus) => {
@@ -95,6 +99,14 @@ function AppointmentCard({
     await onStatusChange(appt.id, status)
     setLoading(false)
   }
+
+  const handleCheckIn = async () => {
+    setCheckingIn(true)
+    await onCheckIn(appt.id)
+    setCheckingIn(false)
+  }
+
+  const isCheckedIn = !!appt.checkedInAt
 
   return (
     <div
@@ -110,9 +122,16 @@ function AppointmentCard({
             <p className="text-xs text-[#64748b]">{appt.client.email}</p>
             <p className="text-xs text-[#94a3b8] mt-1">{appt.eventType.title}</p>
           </div>
-          <Badge variant={STATUS_VARIANT[appt.status]} className="shrink-0">
-            {appt.status.charAt(0) + appt.status.slice(1).toLowerCase().replace("_", " ")}
-          </Badge>
+          <div className="flex items-center gap-2 shrink-0">
+            {isCheckedIn && (
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 rounded-full px-2 py-0.5">
+                <LogIn className="h-2.5 w-2.5" /> Checked In
+              </span>
+            )}
+            <Badge variant={STATUS_VARIANT[appt.status]}>
+              {appt.status.charAt(0) + appt.status.slice(1).toLowerCase().replace("_", " ")}
+            </Badge>
+          </div>
         </div>
 
         <div className="flex items-center gap-4 mt-3 text-xs text-[#64748b]">
@@ -126,20 +145,32 @@ function AppointmentCard({
           </span>
         </div>
 
-        {(appt.status === "PENDING" || appt.status === "CONFIRMED") && (
-          <div className="flex gap-2 mt-3">
-            {appt.status === "PENDING" && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 text-xs gap-1 text-green-700 border-green-200 hover:bg-green-50"
-                disabled={loading}
-                onClick={() => handleStatus("CONFIRMED")}
-              >
-                {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
-                Confirm
-              </Button>
-            )}
+        <div className="flex gap-2 mt-3 flex-wrap">
+          {/* Check In button — available for confirmed/pending appointments */}
+          {(appt.status === "PENDING" || appt.status === "CONFIRMED") && !isCheckedIn && (
+            <Button
+              size="sm"
+              className="h-7 text-xs gap-1 bg-[#1e40af] hover:bg-[#1e3a8a]"
+              disabled={checkingIn}
+              onClick={handleCheckIn}
+            >
+              {checkingIn ? <Loader2 className="h-3 w-3 animate-spin" /> : <LogIn className="h-3 w-3" />}
+              Check In
+            </Button>
+          )}
+          {appt.status === "PENDING" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs gap-1 text-green-700 border-green-200 hover:bg-green-50"
+              disabled={loading}
+              onClick={() => handleStatus("CONFIRMED")}
+            >
+              {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+              Confirm
+            </Button>
+          )}
+          {(appt.status === "PENDING" || appt.status === "CONFIRMED") && (
             <Button
               size="sm"
               variant="outline"
@@ -150,8 +181,8 @@ function AppointmentCard({
               {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
               Cancel
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
@@ -188,6 +219,11 @@ export default function SchedulerPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     })
+    await fetchAppointments()
+  }
+
+  const handleCheckIn = async (id: string) => {
+    await fetch(`/api/appointments/${id}/check-in`, { method: "POST" })
     await fetchAppointments()
   }
 
@@ -245,7 +281,7 @@ export default function SchedulerPage() {
                   <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wide mb-3">{date}</p>
                   <div className="space-y-3">
                     {appts.map((appt) => (
-                      <AppointmentCard key={appt.id} appt={appt} onStatusChange={handleStatusChange} />
+                      <AppointmentCard key={appt.id} appt={appt} onStatusChange={handleStatusChange} onCheckIn={handleCheckIn} />
                     ))}
                   </div>
                 </div>

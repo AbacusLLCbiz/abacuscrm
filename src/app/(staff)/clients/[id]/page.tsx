@@ -28,6 +28,7 @@ interface Client {
   entityType?: string | null
   status: "ACTIVE" | "INACTIVE" | "PROSPECT"
   fiscalYearEnd?: string | null
+  preferredLanguage?: string | null
   street?: string | null
   city?: string | null
   state?: string | null
@@ -222,6 +223,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                 <CardContent className="space-y-3 text-sm">
                   {[
                     { label: "Fiscal Year End", value: client.fiscalYearEnd },
+                    { label: "Language", value: client.preferredLanguage ?? "EN" },
                     { label: "Assigned To", value: client.assignedTo.name ?? client.assignedTo.email },
                     { label: "Tags", value: client.tags.length > 0 ? client.tags.join(", ") : null },
                   ].map(({ label, value }) => value ? (

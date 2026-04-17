@@ -1,6 +1,10 @@
 import { Resend } from "resend"
 
-export const resend = new Resend(process.env.RESEND_API_KEY)
+let _resend: Resend | null = null
+function getResend() {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY ?? "re_placeholder")
+  return _resend
+}
 
 export const FROM_EMAIL = process.env.FROM_EMAIL ?? "noreply@abacusaccounting.com"
 export const FROM_NAME = process.env.FROM_NAME ?? "Abacus Accounting"
@@ -16,7 +20,7 @@ export async function sendEmail({
   html: string
   text?: string
 }) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: `${FROM_NAME} <${FROM_EMAIL}>`,
     to,
     subject,

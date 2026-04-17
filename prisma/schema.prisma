@@ -75,6 +75,7 @@ enum AutomationTrigger {
   APPOINTMENT_BOOKED
   APPOINTMENT_CONFIRMED
   APPOINTMENT_CANCELLED
+  APPOINTMENT_CHECKED_IN
   APPOINTMENT_REMINDER_24H
   APPOINTMENT_REMINDER_1H
   CLIENT_CREATED
@@ -87,6 +88,7 @@ enum AutomationAction {
   SEND_SMS
   REQUEST_DOCUMENTS
   CREATE_REMINDER
+  REQUEST_REVIEW
   WEBHOOK
 }
 
@@ -183,6 +185,7 @@ model Client {
   country         String?      @default("US")
 
   notes           String?
+  preferredLanguage String    @default("EN")
   portalEnabled   Boolean      @default(false)
 
   createdAt       DateTime     @default(now())
@@ -195,6 +198,7 @@ model Client {
   automationLogs   AutomationLog[]
   documentRequests DocumentRequest[]
   phoneCalls       PhoneCall[]
+  reviews          Review[]
 }
 
 // ─── Document Folders ─────────────────────────────────────────────────────────
@@ -301,12 +305,14 @@ model Appointment {
   googleEventId   String?
   msEventId       String?
   notes           String?
+  checkedInAt     DateTime?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
   client          Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
   eventType       EventType         @relation(fields: [eventTypeId], references: [id])
   staffUser       User              @relation("StaffAppointments", fields: [staffUserId], references: [id])
+  reviews         Review[]
 }
 
 // ─── Reminders ───────────────────────────────────────────────────────────────
@@ -397,6 +403,25 @@ model PhoneCall {
 
   client          Client?       @relation(fields: [clientId], references: [id])
   staffUser       User?         @relation("StaffCalls", fields: [staffUserId], references: [id])
+}
+
+// ─── Reviews ─────────────────────────────────────────────────────────────────
+
+model Review {
+  id            String      @id @default(cuid())
+  token         String      @unique @default(cuid())
+  appointmentId String
+  clientId      String
+  rating        Int?
+  feedback      String?
+  minRating     Int         @default(4)
+  googleUrl     String?
+  lang          String      @default("EN")
+  submittedAt   DateTime?
+  createdAt     DateTime    @default(now())
+
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  client        Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 // ─── Analytics ───────────────────────────────────────────────────────────────

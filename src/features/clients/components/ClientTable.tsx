@@ -28,6 +28,7 @@ type Client = {
   entityType?: string | null
   status: "ACTIVE" | "INACTIVE" | "PROSPECT"
   fiscalYearEnd?: string | null
+  preferredLanguage?: string | null
   assignedTo: { name: string | null }
   tags: string[]
 }
@@ -131,6 +132,7 @@ export function ClientTable({ initialClients }: { initialClients: Client[] }) {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748b]">Contact</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748b]">Fiscal Year End</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748b]">Assigned To</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#64748b]">Lang</th>
                 <th className="px-4 py-3 text-left">
                   <button
                     className="flex items-center gap-1 text-xs font-semibold text-[#64748b] hover:text-[#1e40af]"
@@ -145,7 +147,7 @@ export function ClientTable({ initialClients }: { initialClients: Client[] }) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-20 text-center">
+                  <td colSpan={8} className="py-20 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <Building2 className="h-10 w-10 text-[#bfdbfe]" />
                       <p className="text-sm font-medium text-[#64748b]">
@@ -210,6 +212,11 @@ export function ClientTable({ initialClients }: { initialClients: Client[] }) {
                       </td>
                       <td className="px-4 py-3 text-sm text-[#374151]">{client.fiscalYearEnd ?? "—"}</td>
                       <td className="px-4 py-3 text-sm text-[#374151]">{client.assignedTo?.name ?? "—"}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${(client.preferredLanguage ?? "EN") === "ES" ? "bg-amber-50 text-amber-700" : "bg-[#dbeafe] text-[#1e40af]"}`}>
+                          {client.preferredLanguage ?? "EN"}
+                        </span>
+                      </td>
                       <td className="px-4 py-3">
                         <Badge variant={status.variant}>{status.label}</Badge>
                       </td>

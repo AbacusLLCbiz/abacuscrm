@@ -5,7 +5,7 @@ import { TopBar } from "@/shared/components/layout/TopBar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Zap, Mail, MessageSquare, FolderOpen, ArrowRight, Calendar, Loader2 } from "lucide-react"
+import { Plus, Zap, Mail, MessageSquare, FolderOpen, ArrowRight, Calendar, Star, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 const TRIGGER_LABELS: Record<string, string> = {
@@ -14,6 +14,7 @@ const TRIGGER_LABELS: Record<string, string> = {
   APPOINTMENT_BOOKED: "Appointment Booked",
   APPOINTMENT_CONFIRMED: "Appointment Confirmed",
   APPOINTMENT_CANCELLED: "Appointment Cancelled",
+  APPOINTMENT_CHECKED_IN: "Client Checked In",
   APPOINTMENT_REMINDER_24H: "24h Before Appointment",
   APPOINTMENT_REMINDER_1H: "1h Before Appointment",
   CLIENT_CREATED: "New Client Created",
@@ -26,6 +27,7 @@ const ACTION_CONFIG: Record<string, { label: string; icon: React.ElementType; co
   SEND_SMS: { label: "Send SMS", icon: MessageSquare, color: "text-green-700 bg-green-50" },
   REQUEST_DOCUMENTS: { label: "Request Documents", icon: FolderOpen, color: "text-amber-700 bg-amber-50" },
   CREATE_REMINDER: { label: "Create Reminder", icon: Calendar, color: "text-purple-700 bg-purple-50" },
+  REQUEST_REVIEW: { label: "Request Google Review", icon: Star, color: "text-orange-700 bg-orange-50" },
 }
 
 interface AutomationRule {

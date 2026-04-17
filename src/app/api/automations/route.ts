@@ -8,12 +8,13 @@ const createAutomationSchema = z.object({
   description: z.string().optional(),
   trigger: z.enum([
     "DOCUMENT_UPLOADED", "DOCUMENT_REQUEST_DUE", "APPOINTMENT_BOOKED",
-    "APPOINTMENT_CONFIRMED", "APPOINTMENT_CANCELLED", "APPOINTMENT_REMINDER_24H",
-    "APPOINTMENT_REMINDER_1H", "CLIENT_CREATED", "DOCUMENT_REVIEWED", "CUSTOM_DATE",
+    "APPOINTMENT_CONFIRMED", "APPOINTMENT_CANCELLED", "APPOINTMENT_CHECKED_IN",
+    "APPOINTMENT_REMINDER_24H", "APPOINTMENT_REMINDER_1H",
+    "CLIENT_CREATED", "DOCUMENT_REVIEWED", "CUSTOM_DATE",
   ]),
   triggerDaysBefore: z.number().int().optional(),
   triggerDateField: z.string().optional(),
-  action: z.enum(["SEND_EMAIL", "SEND_SMS", "REQUEST_DOCUMENTS", "CREATE_REMINDER", "WEBHOOK"]),
+  action: z.enum(["SEND_EMAIL", "SEND_SMS", "REQUEST_DOCUMENTS", "CREATE_REMINDER", "REQUEST_REVIEW", "WEBHOOK"]),
   actionConfig: z.record(z.string(), z.unknown()),
   isActive: z.boolean().default(true),
 })

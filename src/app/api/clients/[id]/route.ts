@@ -18,6 +18,7 @@ const patchSchema = z.object({
   state: z.string().optional().nullable(),
   zip: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
+  preferredLanguage: z.enum(["EN", "ES"]).optional(),
 })
 
 export const GET = auth(async (req, { params }: { params: Promise<{ id: string }> }) => {
