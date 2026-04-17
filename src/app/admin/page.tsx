@@ -1,24 +1,64 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { Building2, Mail, Lock, Shield, ArrowRight, Loader2, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Suspense } from "react"
 
 type Step = "credentials" | "otp"
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard"
+
   const [step, setStep] = useState<Step>("credentials")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
 
   const handleCredentials = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // Call /api/auth/send-otp then move to OTP step
-    await new Promise((r) => setTimeout(r, 1000))
+    setError("")
+
+    const res = await fetch("/api/auth/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+
+    const data = await res.json()
+
+    if (res.status === 401) {
+      setError("Invalid email or password.")
+      setLoading(false)
+      return
+    }
+
+    // Twilio not configured — sign in directly without OTP
+    if (!res.ok || data.smsDisabled) {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+      setLoading(false)
+      if (result?.error) {
+        setError("Invalid email or password.")
+      } else {
+        router.push(callbackUrl)
+      }
+      return
+    }
+
+    // SMS enabled — show OTP step
     setLoading(false)
     setStep("otp")
   }
@@ -26,10 +66,23 @@ export default function AdminLoginPage() {
   const handleOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // NextAuth signIn with credentials + OTP → redirect to /dashboard
-    await new Promise((r) => setTimeout(r, 1000))
+    setError("")
+
+    const otpCode = (e.currentTarget as HTMLFormElement).otp.value
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      otpCode,
+      redirect: false,
+    })
+
     setLoading(false)
-    window.location.href = "/dashboard"
+    if (result?.error) {
+      setError("Invalid or expired code. Try again.")
+    } else {
+      router.push(callbackUrl)
+    }
   }
 
   return (
@@ -39,7 +92,6 @@ export default function AdminLoginPage() {
         className="hidden lg:flex lg:w-[45%] flex-col justify-between p-14"
         style={{ background: "linear-gradient(160deg, #1e3a8a 0%, #1e40af 60%, #2563eb 100%)" }}
       >
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
             <Building2 className="h-5 w-5 text-white" />
@@ -50,7 +102,6 @@ export default function AdminLoginPage() {
           </div>
         </Link>
 
-        {/* Headline */}
         <div>
           <h1 className="text-4xl font-black text-white leading-tight">
             Your clients.
@@ -83,7 +134,6 @@ export default function AdminLoginPage() {
       {/* Right panel */}
       <div className="flex flex-1 flex-col items-center justify-center p-8 bg-[#f8fafc]">
         <div className="w-full max-w-md">
-          {/* Back to site */}
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-xs text-[#64748b] hover:text-[#1e40af] transition-colors mb-8"
@@ -91,7 +141,6 @@ export default function AdminLoginPage() {
             <ArrowLeft className="h-3.5 w-3.5" /> Back to website
           </Link>
 
-          {/* Mobile logo */}
           <div className="flex items-center gap-2.5 mb-8 lg:hidden">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1e40af]">
               <Building2 className="h-5 w-5 text-white" />
@@ -110,6 +159,12 @@ export default function AdminLoginPage() {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
           {step === "credentials" ? (
             <form onSubmit={handleCredentials} className="space-y-4">
               <div className="space-y-1.5">
@@ -124,6 +179,7 @@ export default function AdminLoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete="email"
                   />
                 </div>
               </div>
@@ -131,7 +187,16 @@ export default function AdminLoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
-                  <Input id="password" type="password" className="pl-9 h-11" placeholder="••••••••" required />
+                  <Input
+                    id="password"
+                    type="password"
+                    className="pl-9 h-11"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                  />
                 </div>
               </div>
               <Button type="submit" className="w-full h-11 text-base font-bold" disabled={loading}>
@@ -148,13 +213,14 @@ export default function AdminLoginPage() {
               <div className="rounded-xl border border-[#bfdbfe] bg-[#eff6ff] p-4 flex items-start gap-3">
                 <Shield className="h-4 w-4 text-[#1e40af] mt-0.5 shrink-0" />
                 <p className="text-xs text-[#1e40af] leading-relaxed">
-                  Two-factor authentication required for staff accounts. Enter the 6-digit code sent to your phone.
+                  Two-factor authentication required. Enter the 6-digit code sent to your phone.
                 </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="otp">Verification code</Label>
                 <Input
                   id="otp"
+                  name="otp"
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]{6}"
@@ -166,9 +232,7 @@ export default function AdminLoginPage() {
                 />
               </div>
               <Button type="submit" className="w-full h-11 text-base font-bold" disabled={loading}>
-                {loading
-                  ? <Loader2 className="h-4 w-4 animate-spin" />
-                  : "Verify & Sign In"}
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify & Sign In"}
               </Button>
               <button
                 type="button"
@@ -182,5 +246,13 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense>
+      <AdminLoginForm />
+    </Suspense>
   )
 }

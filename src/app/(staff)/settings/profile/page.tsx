@@ -1,19 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { TopBar } from "@/shared/components/layout/TopBar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Save, Loader2, KeyRound, User } from "lucide-react"
+import { ArrowLeft, Save, Loader2, KeyRound, User, Check } from "lucide-react"
 import Link from "next/link"
 
 export default function ProfilePage() {
+  const [loadingProfile, setLoadingProfile] = useState(true)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
   const [profileMsg, setProfileMsg] = useState("")
+  const [profileErr, setProfileErr] = useState("")
   const [passwordMsg, setPasswordMsg] = useState("")
+  const [passwordErr, setPasswordErr] = useState("")
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -23,31 +26,69 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
 
+  // Load current user on mount
+  useEffect(() => {
+    fetch("/api/users/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.name) setName(d.name)
+        if (d.email) setEmail(d.email)
+        if (d.phone) setPhone(d.phone)
+      })
+      .catch(() => {})
+      .finally(() => setLoadingProfile(false))
+  }, [])
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     setSavingProfile(true)
     setProfileMsg("")
-    // TODO: wire to PATCH /api/users/me
-    await new Promise((r) => setTimeout(r, 500))
-    setProfileMsg("Profile saved.")
+    setProfileErr("")
+
+    const res = await fetch("/api/users/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, phone: phone || null }),
+    })
+
     setSavingProfile(false)
+    if (res.ok) {
+      setProfileMsg("Profile saved.")
+      setTimeout(() => setProfileMsg(""), 3000)
+    } else {
+      const d = await res.json()
+      setProfileErr(d.error ?? "Failed to save profile.")
+    }
   }
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
+    setPasswordMsg("")
+    setPasswordErr("")
+
     if (newPassword !== confirmPassword) {
-      setPasswordMsg("Passwords do not match.")
+      setPasswordErr("Passwords do not match.")
       return
     }
+
     setSavingPassword(true)
-    setPasswordMsg("")
-    // TODO: wire to PATCH /api/users/me/password
-    await new Promise((r) => setTimeout(r, 500))
-    setPasswordMsg("Password updated.")
-    setCurrentPassword("")
-    setNewPassword("")
-    setConfirmPassword("")
+    const res = await fetch("/api/users/me/password", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    })
+
     setSavingPassword(false)
+    if (res.ok) {
+      setPasswordMsg("Password updated.")
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+      setTimeout(() => setPasswordMsg(""), 3000)
+    } else {
+      const d = await res.json()
+      setPasswordErr(d.error ?? "Failed to update password.")
+    }
   }
 
   return (
@@ -72,25 +113,32 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSaveProfile} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+              {loadingProfile ? (
+                <div className="flex items-center gap-2 py-4 text-sm text-[#94a3b8]">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Loading…
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone (for SMS 2FA)</Label>
-                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 (515) 000-0000" />
-                </div>
-                {profileMsg && <p className="text-sm text-green-600">{profileMsg}</p>}
-                <Button type="submit" disabled={savingProfile} className="gap-2">
-                  {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  Save Profile
-                </Button>
-              </form>
+              ) : (
+                <form onSubmit={handleSaveProfile} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone (for SMS 2FA)</Label>
+                    <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 (555) 000-0000" />
+                  </div>
+                  {profileMsg && <p className="text-sm text-green-600 flex items-center gap-1"><Check className="h-3.5 w-3.5" />{profileMsg}</p>}
+                  {profileErr && <p className="text-sm text-red-600">{profileErr}</p>}
+                  <Button type="submit" disabled={savingProfile} className="gap-2">
+                    {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    Save Profile
+                  </Button>
+                </form>
+              )}
             </CardContent>
           </Card>
 
@@ -115,9 +163,8 @@ export default function ProfilePage() {
                   <Label htmlFor="confirmPassword">Confirm New Password</Label>
                   <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
                 </div>
-                {passwordMsg && (
-                  <p className={`text-sm ${passwordMsg.includes("match") ? "text-red-600" : "text-green-600"}`}>{passwordMsg}</p>
-                )}
+                {passwordMsg && <p className="text-sm text-green-600 flex items-center gap-1"><Check className="h-3.5 w-3.5" />{passwordMsg}</p>}
+                {passwordErr && <p className="text-sm text-red-600">{passwordErr}</p>}
                 <Button type="submit" disabled={savingPassword} className="gap-2">
                   {savingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
                   Change Password
