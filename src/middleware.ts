@@ -1,18 +1,24 @@
-import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { getToken } from "next-auth/jwt"
 
-export default auth((req) => {
-  // If no valid session, redirect to the staff login page
-  if (!req.auth) {
+export async function middleware(req: NextRequest) {
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  })
+
+  if (!token) {
     const loginUrl = new URL("/admin", req.url)
-    // Preserve the original URL so we can redirect back after login
     loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname)
     return NextResponse.redirect(loginUrl)
   }
-})
+
+  return NextResponse.next()
+}
 
 export const config = {
-  // Protect all staff routes — public routes (/, /book, /portal, /review, /admin, /api) are excluded
+  // Protect all staff routes — public routes (/, /book, /portal, /review, /admin, /api) are not matched
   matcher: [
     "/dashboard/:path*",
     "/clients/:path*",
@@ -22,6 +28,5 @@ export const config = {
     "/analytics/:path*",
     "/settings/:path*",
     "/calls/:path*",
-    "/admin/dashboard/:path*",
   ],
 }
